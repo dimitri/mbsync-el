@@ -1,0 +1,17 @@
+= mbsync-el
+
+This Emacs Lisp package allows to easily call the +mbsync+ command line from
+the +isync+ tool directly from within Emacs.
+
+See http://isync.sourceforge.net/mbsync.html
+
+== gnus integration
+
+Typical gnus integration is as follows:
+
+--------------------------------------------------------------------------------
+;; f runs the command mbsync
+(require 'mbsync)
+(add-hook 'mbsync-exit-hook 'gnus-group-get-new-news)
+(define-key gnus-group-mode-map (kbd "f") 'mbsync)
+--------------------------------------------------------------------------------
