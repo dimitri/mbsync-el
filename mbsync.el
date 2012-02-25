@@ -1,26 +1,63 @@
 ;;; mbsync.el --- run mbsync to fetch mails
 
-(require 'gnus)
+(defgroup mbsync nil "mbsync customization group"
+  :group 'convenience)
 
-(defvar mbsync-executable (executable-find "mbsync")
-  "Where to find the `mbsync' utility")
+(defcustom mbsync-ext-hook nil
+  "Hook run after `mbsync' is done."
+  :group 'mbysnc
+  :type 'hook)
 
-(defvar mbsync-args '("-a")
-  "List of options to pass to the `mbsync' command")
+(defcustom mbsync-executable (executable-find "mbsync")
+  "Where to find the `mbsync' utility"
+  :group 'mbsync)
 
-(defun mbsync ()
-  "run the `mbsync' command, synchronously"
-  (interactive)
-  (let* ((buffer "*mbsync*")
-	 (yes    (make-temp-file "mbsync"))
-	 ;; mbsync might ask about certificates validation
-	 (dummy (with-temp-file yes (insert "yes\n")))
-	 (ret
-	  (apply 'call-process mbsync-executable yes buffer nil mbsync-args)))
-    (if (member ret '(0 1))		; WTF?
-	(message "mbsync is done")
-      (set-window-buffer (selected-window) buffer))))
+(defcustom mbsync-args '("Tapoueh" "2ndQuadrant")
+  "List of options to pass to the `mbsync' command"
+  :group 'mbsync)
 
-(add-hook 'gnus-get-top-new-news-hook 'mbsync))
+(defvar mbsync-process-filter-pos nil)
+
+(defun mbsync-process-filter (proc string)
+  "Filter for `mbsync', auto accepting certificates"
+  (with-current-buffer (process-buffer proc)
+    (unless (bound-and-true-p mbsync-process-filter-pos)
+      (make-local-variable 'mbsync-process-filter-pos)
+      (setq mbsync-process-filter-pos (point-min)))
+
+    (save-excursion
+      (let ((inhibit-read-only t))
+	(goto-char (point-max))
+	(insert string)
+
+	;; accept certificates
+	(goto-char mbsync-process-filter-pos)
+	(while (re-search-forward "Accept certificate?" nil t)
+	  (process-send-string proc "y\n"))))
+
+    (save-excursion
+	;; message progress
+	(goto-char mbsync-process-filter-pos)
+	(while (re-search-forward (rx bol "Channel " (+ (any alnum)) eol) nil t)
+	  (message "%s" (match-string 0))))
+
+    (setq mbsync-process-filter-pos (point-max))))
+
+(defun mbsync-sentinel (proc change)
+  "Mail sync is over, message it then run `mbsync-exit-hook'"
+  (when (eq (process-status proc) 'exit)
+    (message "mbsync is done")
+    (run-hooks 'mbsync-exit-hook)))
+
+(defun mbsync (&optional show-buffer)
+  "run the `mbsync' command, asynchronously, then run `mbsync-exit-hook'"
+  (interactive "p")
+  (let* ((name "*mbsync*")
+	 (dummy (when (get-buffer name) (kill-buffer name)))
+	 (proc (apply 'start-process name name mbsync-executable mbsync-args)))
+    (set-process-filter proc 'mbsync-process-filter)
+    (set-process-sentinel proc 'mbsync-sentinel)
+    (when (and (called-interactively-p) (eq show-buffer 4))
+      (set-window-buffer (selected-window) (process-buffer proc)))))
 
 (provide 'mbsync)
