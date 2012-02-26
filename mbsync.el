@@ -12,7 +12,7 @@
   "Where to find the `mbsync' utility"
   :group 'mbsync)
 
-(defcustom mbsync-args '("Tapoueh" "2ndQuadrant")
+(defcustom mbsync-args '("-a")
   "List of options to pass to the `mbsync' command"
   :group 'mbsync)
 
