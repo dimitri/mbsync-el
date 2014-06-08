@@ -3,7 +3,7 @@
 (defgroup mbsync nil "mbsync customization group"
   :group 'convenience)
 
-(defcustom mbsync-ext-hook nil
+(defcustom mbsync-exit-hook nil
   "Hook run after `mbsync' is done."
   :group 'mbysnc
   :type 'hook)
