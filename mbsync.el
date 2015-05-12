@@ -1,4 +1,14 @@
 ;;; mbsync.el --- run mbsync to fetch mails
+;; Copyright (C) 2012-2015 Dimitri Fontaine
+
+;; Author: Dimitri Fontaine <dim@tapoueh.org>
+;; Version: 0.0.1
+
+;;; Commentary:
+;;
+;; run mbsync to fetch mails
+
+;;; Code:
 
 (defgroup mbsync nil "mbsync customization group"
   :group 'convenience)
@@ -61,3 +71,5 @@
       (set-window-buffer (selected-window) (process-buffer proc)))))
 
 (provide 'mbsync)
+
+;;; mbsync.el ends here
