@@ -26,6 +26,11 @@
   "List of options to pass to the `mbsync' command"
   :group 'mbsync)
 
+(defcustom mbsync-auto-accept-certs nil
+  "Accept all certificates if true."
+  :group 'mbsync
+  :type 'boolean)
+
 (defvar mbsync-process-filter-pos nil)
 
 (defun mbsync-process-filter (proc string)
@@ -43,7 +48,9 @@
 	;; accept certificates
 	(goto-char mbsync-process-filter-pos)
 	(while (re-search-forward "Accept certificate?" nil t)
-	  (process-send-string proc "y\n"))))
+          (if mbsync-auto-accept-certs
+              (process-send-string proc "y\n")
+            (message "mbsync blocked, waiting for certificate acceptance")))))
 
     (save-excursion
 	;; message progress
