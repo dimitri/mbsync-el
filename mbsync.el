@@ -15,7 +15,7 @@
 
 (defcustom mbsync-exit-hook nil
   "Hook run after `mbsync' is done."
-  :group 'mbysnc
+  :group 'mbsync
   :type 'hook)
 
 (defcustom mbsync-executable (executable-find "mbsync")
