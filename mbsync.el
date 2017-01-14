@@ -31,6 +31,11 @@
   :group 'mbsync
   :type 'boolean)
 
+(defface mbsync-font-lock-error-face
+  '((t (:foreground "yellow" :background "red" :bold t)))
+  "Face description for all errors."
+  :group 'mbsync)
+
 (defvar mbsync-process-filter-pos nil)
 
 (defun mbsync-process-filter (proc string)
@@ -57,6 +62,20 @@
 	(goto-char mbsync-process-filter-pos)
 	(while (re-search-forward (rx bol "Channel " (+ (any alnum)) eol) nil t)
 	  (message "%s" (match-string 0))))
+
+    (let (err-pos)
+      (save-excursion
+        ;; errors
+        (goto-char mbsync-process-filter-pos)
+        (while (re-search-forward (rx bol "Error:" (* anything) eol) nil t)
+          (message "%s" (match-string 0))
+          (overlay-put (make-overlay (match-beginning 0)
+                                     (match-end 0))
+                       'face 'mbsync-font-lock-error-face)
+          (switch-to-buffer-other-window (current-buffer))
+          (setq err-pos (match-beginning 0))))
+      (when err-pos
+        (goto-char err-pos)))
 
     (setq mbsync-process-filter-pos (point-max))))
 
