@@ -19,12 +19,14 @@
   :type 'hook)
 
 (defcustom mbsync-executable (executable-find "mbsync")
-  "Where to find the `mbsync' utility"
-  :group 'mbsync)
+  "Where to find the `mbsync' utility."
+  :group 'mbsync
+  :type 'string)
 
 (defcustom mbsync-args '("-a")
-  "List of options to pass to the `mbsync' command"
-  :group 'mbsync)
+  "List of options to pass to the `mbsync' command."
+  :group 'mbsync
+  :type '(repeat string))
 
 (defcustom mbsync-auto-accept-certs nil
   "Accept all certificates if true."
@@ -39,7 +41,8 @@
 (defvar mbsync-process-filter-pos nil)
 
 (defun mbsync-process-filter (proc string)
-  "Filter for `mbsync', auto accepting certificates"
+  "Filter for `mbsync', auto accepting certificates.
+Arguments PROC, STRING as in `set-process-filter'."
   (with-current-buffer (process-buffer proc)
     (unless (bound-and-true-p mbsync-process-filter-pos)
       (make-local-variable 'mbsync-process-filter-pos)
@@ -80,20 +83,23 @@
     (setq mbsync-process-filter-pos (point-max))))
 
 (defun mbsync-sentinel (proc change)
-  "Mail sync is over, message it then run `mbsync-exit-hook'"
+  "Mail sync is over, message it then run `mbsync-exit-hook'.
+Arguments PROC, CHANGE as in `set-process-sentinel'."
   (when (eq (process-status proc) 'exit)
     (message "mbsync is done")
     (run-hooks 'mbsync-exit-hook)))
 
+;;;###autoload
 (defun mbsync (&optional show-buffer)
-  "run the `mbsync' command, asynchronously, then run `mbsync-exit-hook'"
+  "Run the `mbsync' command, asynchronously, then run `mbsync-exit-hook'.
+If SHOW-BUFFER, also show the *mbsync* output."
   (interactive "p")
   (let* ((name "*mbsync*")
 	 (dummy (when (get-buffer name) (kill-buffer name)))
 	 (proc (apply 'start-process name name mbsync-executable mbsync-args)))
     (set-process-filter proc 'mbsync-process-filter)
     (set-process-sentinel proc 'mbsync-sentinel)
-    (when (and (called-interactively-p) (eq show-buffer 4))
+    (when (and (called-interactively-p 'any) (eq show-buffer 4))
       (set-window-buffer (selected-window) (process-buffer proc)))))
 
 (provide 'mbsync)
