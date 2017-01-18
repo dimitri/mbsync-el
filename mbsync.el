@@ -1,12 +1,18 @@
 ;;; mbsync.el --- run mbsync to fetch mails
-;; Copyright (C) 2012-2015 Dimitri Fontaine
+
+;; Copyright (C) 2012-2017 Dimitri Fontaine
 
 ;; Author: Dimitri Fontaine <dim@tapoueh.org>
 ;; Version: 0.0.1
+;; URL: https://github.com/dimitri/mbsync-el
+
+;; This file is NOT part of GNU Emacs.
+
+;; mbsync-el is free software, see the file LICENSE.
 
 ;;; Commentary:
 ;;
-;; run mbsync to fetch mails
+;; Run mbsync to fetch mails
 
 ;;; Code:
 
