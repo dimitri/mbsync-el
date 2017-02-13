@@ -39,12 +39,22 @@
   :group 'mbsync
   :type 'boolean)
 
+(defcustom mbsync-verbose t
+  "Print messages on start and finish."
+  :group 'mbsync
+  :type 'boolean)
+
 (defface mbsync-font-lock-error-face
   '((t (:foreground "yellow" :background "red" :bold t)))
   "Face description for all errors."
   :group 'mbsync)
 
 (defvar mbsync-process-filter-pos nil)
+
+(defun mbsync-info (&rest args)
+  "Show user the message ARGS if we're being `mbsync-verbose'."
+  (let ((inhibit-message (not mbsync-verbose)))
+    (apply #'message args)))
 
 (defun mbsync-process-filter (proc string)
   "Filter for `mbsync', auto accepting certificates.
@@ -70,7 +80,7 @@ Arguments PROC, STRING as in `set-process-filter'."
 	;; message progress
 	(goto-char mbsync-process-filter-pos)
 	(while (re-search-forward (rx bol "Channel " (+ (any alnum)) eol) nil t)
-	  (message "%s" (match-string 0))))
+	  (mbsync-info "%s" (match-string 0))))
 
     (let (err-pos)
       (save-excursion
@@ -92,7 +102,7 @@ Arguments PROC, STRING as in `set-process-filter'."
   "Mail sync is over, message it then run `mbsync-exit-hook'.
 Arguments PROC, CHANGE as in `set-process-sentinel'."
   (when (eq (process-status proc) 'exit)
-    (message "mbsync is done")
+    (mbsync-info "mbsync is done")
     (run-hooks 'mbsync-exit-hook)))
 
 ;;;###autoload
