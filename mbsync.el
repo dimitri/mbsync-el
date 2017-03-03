@@ -86,7 +86,11 @@ Arguments PROC, STRING as in `set-process-filter'."
       (save-excursion
         ;; errors
         (goto-char mbsync-process-filter-pos)
-        (while (re-search-forward (rx bol "Error:" (* anything) eol) nil t)
+        (while (re-search-forward (rx (or
+                                       (and bol "Error:" (* anything) eol)
+                                       (and bol "gpg: decryption failed: " (* anything) eol)
+                                       (and bol "Skipping account " (* anything) eol) ))
+                                  nil t)
           (message "%s" (match-string 0))
           (overlay-put (make-overlay (match-beginning 0)
                                      (match-end 0))
