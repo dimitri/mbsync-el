@@ -87,6 +87,7 @@ Arguments PROC, STRING as in `set-process-filter'."
         ;; errors
         (goto-char mbsync-process-filter-pos)
         (while (re-search-forward (rx (or
+                                       (and bol "Maildir error:" (* anything) eol)
                                        (and bol "Error:" (* anything) eol)
                                        (and bol "gpg: decryption failed: " (* anything) eol)
                                        (and bol "Skipping account " (* anything) eol) ))
