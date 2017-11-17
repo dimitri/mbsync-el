@@ -3,7 +3,7 @@
 ;; Copyright (C) 2012-2017 Dimitri Fontaine
 
 ;; Author: Dimitri Fontaine <dim@tapoueh.org>
-;; Version: 0.0.1
+;; Version: 0.1.1
 ;; URL: https://github.com/dimitri/mbsync-el
 
 ;; This file is NOT part of GNU Emacs.
@@ -13,6 +13,13 @@
 ;;; Commentary:
 ;;
 ;; Run mbsync to fetch mails
+
+;;; News:
+
+;;;; Changes since 0.0.1:
+;; - Ensure only one process runs at a time.
+;;   If you wish to run several at a time (e.g. with different configurations),
+;;   let-bind `mbsync-buffer-name' around invocations to keep them unique.
 
 ;;; Code:
 
@@ -50,6 +57,8 @@
   :group 'mbsync)
 
 (defvar mbsync-process-filter-pos nil)
+
+(defvar mbsync-buffer-name "*mbsync*")
 
 (defun mbsync-info (&rest args)
   "Show user the message ARGS if we're being `mbsync-verbose'."
@@ -110,18 +119,31 @@ Arguments PROC, CHANGE as in `set-process-sentinel'."
     (mbsync-info "mbsync is done")
     (run-hooks 'mbsync-exit-hook)))
 
+(defun mbsync-get-proc ()
+  "Get the running mbsync process (or nil if no such)."
+  (let ((b (get-buffer "*mbsync*")))
+    (and (buffer-live-p b)
+         (get-buffer-process b))))
+
 ;;;###autoload
 (defun mbsync (&optional show-buffer)
   "Run the `mbsync' command, asynchronously, then run `mbsync-exit-hook'.
 If SHOW-BUFFER, also show the *mbsync* output."
-  (interactive "p")
-  (let* ((name "*mbsync*")
-	 (dummy (when (get-buffer name) (kill-buffer name)))
-	 (proc (apply 'start-process name name mbsync-executable mbsync-args)))
-    (set-process-filter proc 'mbsync-process-filter)
-    (set-process-sentinel proc 'mbsync-sentinel)
-    (when (and (called-interactively-p 'any) (eq show-buffer 4))
-      (set-window-buffer (selected-window) (process-buffer proc)))))
+  (interactive "P")
+  (if (mbsync-get-proc)
+      (message "Please wait, mbsync is already fetching, see buffer *mbsync* for details.")
+    (let* ((dummy (when (get-buffer mbsync-buffer-name)
+                    (kill-buffer mbsync-buffer-name)))
+           (proc (apply 'start-process
+                        mbsync-buffer-name
+                        mbsync-buffer-name
+                        mbsync-executable
+                        mbsync-args)))
+      (set-process-filter proc 'mbsync-process-filter)
+      (set-process-sentinel proc 'mbsync-sentinel)))
+  (when show-buffer
+    (set-window-buffer (selected-window)
+                       (process-buffer (mbsync-get-proc)))))
 
 (provide 'mbsync)
 
