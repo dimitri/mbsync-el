@@ -17,9 +17,15 @@
 ;;; News:
 
 ;;;; Changes since 0.0.1:
-;; - Ensure only one process runs at a time.
-;;   If you wish to run several at a time (e.g. with different configurations),
-;;   let-bind `mbsync-buffer-name' around invocations to keep them unique.
+;;
+;; - Update status line regex and make it customizable. (#4, #10)
+;;   New defcustom mbsync-status-line-re – thanks Matthew Carter and
+;;   Ivan Stefanischin!
+;;
+;; - Ensure only one process runs at a time. (#8, #9)
+;;   If you wish to run several at a time (e.g. with different
+;;   configurations), let-bind `mbsync-buffer-name' around invocations
+;;   to keep them unique.  Thanks Matthew Carter!
 
 ;;; Code:
 
