@@ -86,10 +86,13 @@ Arguments PROC, STRING as in `set-process-filter'."
             (message "mbsync blocked, waiting for certificate acceptance")))))
 
     (save-excursion
-	;; message progress
-	(goto-char mbsync-process-filter-pos)
-	(while (re-search-forward (rx bol "Channel " (+ (any alnum)) eol) nil t)
-	  (mbsync-info "%s" (match-string 0))))
+      ;; message progress
+      (goto-char mbsync-process-filter-pos)
+      ;; Newer versions of mbsync just report C:, B:, M:, or S: for progress.
+      (while (re-search-forward (rx (or "Channel " (and (any ?m ?c ?b ?s) ": "))
+                                    (+ (any alnum ?/)))
+                                nil t)
+        (mbsync-info "mbsync progress: %s" (match-string 0))))
 
     (let (err-pos)
       (save-excursion
