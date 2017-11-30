@@ -90,7 +90,7 @@
 
 (defun mbsync-log-level-int (severity)
   "Get the log level of SEVERITY as int."
-  (or (mbsync-elem-index mbsync-verbose mbsync-log-levels)
+  (or (mbsync-elem-index severity mbsync-log-levels)
       0))
 
 (defun mbsync-log (severity &rest args)
