@@ -95,8 +95,8 @@
 
 (defun mbsync-log (severity &rest args)
   "If SEVERITY is less than `mbsync-verbose', show user the message ARGS."
-  (when (>= (mbsync-log-level-int severity)
-            (mbsync-log-level-int mbsync-verbose))
+  (when (>= (mbsync-log-level-int mbsync-verbose)
+            (mbsync-log-level-int severity))
     (apply #'message args)))
 
 (defun mbsync-process-filter (proc string)
