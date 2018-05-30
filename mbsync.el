@@ -86,7 +86,7 @@
             (throw 'found i)
           (incf i))))))
 
-(defvar mbsync-log-levels '(normal verbose debug))
+(defvar mbsync-log-levels '(quiet normal verbose debug))
 
 (defun mbsync-log-level-int (severity)
   "Get the log level of SEVERITY as int."
