@@ -31,6 +31,8 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
 (defgroup mbsync nil "mbsync customization group"
   :group 'convenience)
 
