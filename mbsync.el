@@ -86,7 +86,7 @@
       (dolist (e lst)
         (if (eq e elt)
             (throw 'found i)
-          (incf i))))))
+          (cl-incf i))))))
 
 (defvar mbsync-log-levels '(quiet normal verbose debug))
 
