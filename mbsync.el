@@ -66,14 +66,13 @@
   "Face description for all errors."
   :group 'mbsync)
 
-;; Newer versions of mbsync just report C:, B:, M:, or S: for progress.
-(defcustom mbsync-status-line-re (rx (or "Channel "
-                                         (and (any ?m ?c ?b ?s) ": "))
-                                     (+ (any alnum ?/)))
-                                 ;; (rx bol "Channel " (+ (any alnum)) eol)
+(defcustom mbsync-status-line-re (rx "B: "
+                                     (group (+ (any alnum ?/))))
   "Regex which matches an output line to show it in the echo-area."
   :group 'mbsync
   :type 'string)
+
+(defvar mbsync-last-status nil)
 
 (defvar mbsync-process-filter-pos nil)
 
@@ -125,7 +124,8 @@ Arguments PROC, STRING as in `set-process-filter'."
       ;; message progress
       (goto-char mbsync-process-filter-pos)
       (while (re-search-forward mbsync-status-line-re nil t)
-        (mbsync-log 'verbose "mbsync progress: %s" (match-string 0))))
+        (setq mbsync-last-status (match-string 1))
+        (mbsync-log 'verbose "mbsync progress: %s" (match-string 1))))
 
     (let (err-pos)
       (save-excursion
